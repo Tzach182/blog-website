@@ -1,0 +1,23 @@
+<%- include("partials/header.ejs") %>
+<div class="container">
+<h1 class="text-center my-5">Blog Site</h1>
+
+<% if (blogList.length > 0) { %>
+    <h4 class="text-center my-5">Choose the post you want to read</h4>
+<% } else { %>
+    <h4 class="text-center my-5">Add a post in the Add post section</h4>
+<% } %>
+
+ 
+
+
+<div class="list-group">
+    <% blogList.forEach(blog => { %>
+        <a href="/blog?blogName=<%= blog.blogName %>" class="list-group-item list-group-item-action addMark"><%= blog.blogName %></a>
+     
+    <% }) %>
+  </div>
+
+</div>
+
+<script src="/index.js"></script>

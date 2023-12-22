@@ -1,0 +1,19 @@
+<%- include("partials/header.ejs") %>
+<div class="d-flex justify-content-center align-items-center">
+<div class="container">
+<div class="row">
+<% if (locals.blogName) { %>
+    <h2 class="text-center">
+        <%= blogName %>
+    </h2>
+<% } %>
+</div>
+<div class="row">
+<% if (locals.blogBody) { %>
+ <p class="text-center"><%= blogBody %></p>
+<% } %>
+</div>
+</div>
+
+</div>
+
