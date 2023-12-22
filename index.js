@@ -32,6 +32,7 @@ app.get("/addPost", (req,res) => {
     and then rerouts to main page with the updated list
 */
 app.post("/submit", (req, res) => {
+    console.log("this is the body " + req.body["blogName"]);
     const newBlog = {
         blogName : req.body["blogName"],
         blogBody : req.body["blogBody"],
@@ -77,6 +78,48 @@ app.post("/delete/submit", (req, res) => {
     }
 
     res.render("delete.ejs", {message : message});
+});
+
+/*
+    displays edit blog page
+*/
+app.get("/edit", (req, res) => {
+    res.render("edit.ejs");
+});
+
+
+/*
+    finds the post to display
+*/
+app.post("/edit/find", (req, res) => {
+
+    const nameToFind = req.body["blogName"];
+    const blog = blogList.find(({blogName}) => blogName === nameToFind);
+    var message = "Couldn't find this blog";
+
+    if(blog) {
+        message = "Blog was found";
+    }
+
+    res.render("edit.ejs", {
+        blog : blog,
+        message : message
+    }); 
+});
+
+
+/*
+    deals with the edit blog logic, returns status message
+*/
+app.post("/edit/submit", (req, res) => {
+    const index = blogList.findIndex(blog => {
+        return blog.blogName === req.body["blogName"];
+    });
+
+    blogList[index].blogName = req.body["blogName"];
+    blogList[index].blogBody = req.body["blogBody"];
+
+    res.render("edit.ejs", {message : "edited succesfully"});
 });
 
 

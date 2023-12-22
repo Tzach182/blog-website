@@ -1,0 +1,51 @@
+<%- include("partials/header.ejs") %>
+
+
+<% if (locals.message) { %>
+    <% if (locals.blog) { %>
+        <div class="container my-5">
+            <form action="/edit/submit" method="POST">
+              <div class="input-group flex-nowrap">
+                <span class="input-group-text" id="addon-wrapping">Blog name</span>
+                <input type="text" class="form-control" placeholder="<%= blog.blogName %>" aria-label="blogName" aria-describedby="addon-wrapping" name="blogName" required>
+              </div>
+                <div class="input-group">
+                  <span class="input-group-text">Enter text</span>
+                  <textarea class="form-control" aria-label="blogBody" name="blogBody"><%= blog.blogBody %> </textarea>
+                </div>
+                <input class="btn btn btn-outline-secondary" type="submit" value="Edit">
+              </form>
+            
+            </div>
+            <% } else { %>
+                <div class="container my-5">
+                    <h2 class="text-center my-5"><%= message %></h2>
+                    <form action="/edit/find" method="POST">
+                      <div class="input-group flex-nowrap">
+                        <span class="input-group-text" id="addon-wrapping">Name</span>
+                        <input type="text" class="form-control" placeholder="Name" aria-label="blogName" aria-describedby="addon-wrapping" name="blogName">
+                      </div>
+                      <input class="btn btn btn-outline-secondary my-5" type="submit" value="Find">
+                      </form>
+                    </div>
+             
+    <% } %>
+
+    
+
+    <% } else { %>
+        <div class="container my-5">
+            <h2 class="text-center my-5">Enter the name of the blog you want to edit</h2>
+            <form action="/edit/find" method="POST">
+              <div class="input-group flex-nowrap">
+                <span class="input-group-text" id="addon-wrapping">Name</span>
+                <input type="text" class="form-control" placeholder="Name" aria-label="blogName" aria-describedby="addon-wrapping" name="blogName">
+              </div>
+              <input class="btn btn btn-outline-secondary my-5" type="submit" value="Find">
+              </form>
+            </div>
+    <% } %>
+
+
+
+
