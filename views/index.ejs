@@ -13,7 +13,7 @@
 
 <div class="list-group">
     <% blogList.forEach(blog => { %>
-        <a href="/blog?blogName=<%= blog.blogName %>" class="list-group-item list-group-item-action addMark"><%= blog.blogName %></a>
+        <a href="/blog/<%= blog.id %>" class="list-group-item list-group-item-action addMark"><%= blog.title %></a>
      
     <% }) %>
   </div>

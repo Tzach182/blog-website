@@ -4,7 +4,7 @@ import bodyParser from "body-parser";
 const app = express();
 const port = 3000;
 
-var blogList = [];
+let blogList = [{id: 1, title: "start", content: "this is a demo to get a feel for it" }];
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -14,6 +14,7 @@ app.use(express.static("public"));
     displays main webpage with the list of blogs
 */
 app.get("/", (req, res) => {
+    console.log(blogList);
     res.render("index.ejs", {
         blogList : blogList,
     });
@@ -34,23 +35,24 @@ app.get("/addPost", (req,res) => {
 app.post("/submit", (req, res) => {
     console.log("this is the body " + req.body["blogName"]);
     const newBlog = {
-        blogName : req.body["blogName"],
-        blogBody : req.body["blogBody"],
+        id : blogList.length,
+        title : req.body["blogName"],
+        content : req.body["blogBody"],
     };
     blogList.push(newBlog);
 
-    res.render("index.ejs", {
-        blogList : blogList,
-    });
+    res.redirect("/");
 });
 
 
 /*
     finds requested blog and displays it on the page
 */
-app.get("/blog",(req, res) => {
-    const nameToFind = req.query.blogName;
-    const blog = blogList.find(({blogName}) => blogName === nameToFind);
+app.get("/blog/:id",(req, res) => {
+    console.log(req.params.id);
+    const id = parseInt(req.params.id);
+    const blog = blogList.find((blog) => blog.id === id);
+    console.log(blog);
 
     res.render("blog.ejs", blog);
 });
@@ -84,7 +86,10 @@ app.post("/delete/submit", (req, res) => {
     displays edit blog page
 */
 app.get("/edit", (req, res) => {
-    res.render("edit.ejs");
+    const id = req.body.id;
+    const blogToEdit = blogList.find((blog) => blog.id == id);
+
+    res.render("edit.ejs", {blog: blogToEdit});
 });
 
 
