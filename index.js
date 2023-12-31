@@ -1,8 +1,19 @@
 import express from "express";
 import bodyParser from "body-parser";
+import pg from "pg";
 
 const app = express();
 const port = 3000;
+
+const db = new pg.Client({
+    user: "postgres",
+    host: "localhost",
+    database: "blogposts",
+    password: "A1234567",
+    port: 5432,
+});
+
+db.connect();
 
 let blogList = [{id: 1, title: "start", content: "this is a demo to get a feel for it" }];
 
@@ -10,11 +21,17 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(express.static("public"));
 
+async function getBlogs() {
+    const result = await db.query("SELECT * FROM post");
+    blogList = result.rows;
+}
+
 /*
     displays main webpage with the list of blogs
 */
-app.get("/", (req, res) => {
-    console.log(blogList);
+app.get("/", async (req, res) => {
+    //console.log(blogList);
+    await getBlogs();
     res.render("index.ejs", {
         blogList : blogList,
     });
@@ -32,55 +49,50 @@ app.get("/addPost", (req,res) => {
     deals with logic of adding posts
     and then rerouts to main page with the updated list
 */
-app.post("/submit", (req, res) => {
+app.post("/submit", async (req, res) => {
     //console.log("this is the body " + req.body["blogName"]);
-    const newBlog = {
-        id : blogList.length + 1,
-        title : req.body["blogName"],
-        content : req.body["blogBody"],
+    const title = req.body.title;
+    const content = req.body.content;
+    try {
+        const result = await db.query("INSERT INTO post (title, content) VALUES ($1, $2) RETURNING *",[title, content]);
+        //console.log(result);
+        res.redirect("/");
+    } catch (err) {
+        console.log(err);
     };
-    blogList.push(newBlog);
-
-    res.redirect("/");
 });
 
 
 /*
     finds requested blog and displays it on the page
 */
-app.get("/blog/:id",(req, res) => {
+app.get("/blog/:id", async (req, res) => {
+    
     console.log(req.params.id);
     const id = parseInt(req.params.id);
-    const blog = blogList.find((blog) => blog.id === id);
-    console.log(blog);
+    try {
+        const result = await db.query("SELECT * FROM post WHERE id = $1",[id]);
+        let blog = result.rows;
+        console.log(blog);
+        res.render("blog.ejs", blog[0]);
+    } catch (err) {
+        console.log(err);
+    }
 
-    res.render("blog.ejs", blog);
 });
 
 
 /*
     displays delete blog page
 */
-app.get("/delete", (req, res) => {
-    res.render("delete.ejs");
+app.get("/delete/:id", (req, res) => {
+    console.log(req.params.id);
+    const id = req.params.id;
+    const indexToDelete = blogList.findIndex((blog) => blog.id == id);
+    blogList.splice(indexToDelete, 1);
+    res.redirect("/");
 });
 
-
-/*
-    deals with the blog deletion logic, returns status message
-*/
-app.post("/delete/submit", (req, res) => {
-    const nameToDelete = req.body["blogName"];
-    const blogToDelete = blogList.find(({blogName}) => blogName === nameToDelete);
-    var message = `${nameToDelete} was not found`;
-     
-    if (blogToDelete) {
-        blogList = blogList.filter(function(blog) { return blog.blogName != nameToDelete; });
-        message = `${nameToDelete} deleted succesfully`;
-    }
-
-    res.render("delete.ejs", {message : message});
-});
 
 /*
     displays edit blog page
