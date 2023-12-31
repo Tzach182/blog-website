@@ -33,9 +33,9 @@ app.get("/addPost", (req,res) => {
     and then rerouts to main page with the updated list
 */
 app.post("/submit", (req, res) => {
-    console.log("this is the body " + req.body["blogName"]);
+    //console.log("this is the body " + req.body["blogName"]);
     const newBlog = {
-        id : blogList.length,
+        id : blogList.length + 1,
         title : req.body["blogName"],
         content : req.body["blogBody"],
     };
@@ -85,46 +85,27 @@ app.post("/delete/submit", (req, res) => {
 /*
     displays edit blog page
 */
-app.get("/edit", (req, res) => {
+app.post("/edit", (req, res) => {
     const id = req.body.id;
     const blogToEdit = blogList.find((blog) => blog.id == id);
-
-    res.render("edit.ejs", {blog: blogToEdit});
+    console.log(blogToEdit);
+    res.render("edit.ejs", blogToEdit);
 });
-
-
-/*
-    finds the post to display
-*/
-app.post("/edit/find", (req, res) => {
-
-    const nameToFind = req.body["blogName"];
-    const blog = blogList.find(({blogName}) => blogName === nameToFind);
-    var message = "Couldn't find this blog";
-
-    if(blog) {
-        message = "Blog was found";
-    }
-
-    res.render("edit.ejs", {
-        blog : blog,
-        message : message
-    }); 
-});
-
 
 /*
     deals with the edit blog logic, returns status message
 */
 app.post("/edit/submit", (req, res) => {
-    const index = blogList.findIndex(blog => {
-        return blog.blogName === req.body["blogName"];
-    });
+   const id = req.body.id;
+   console.log(id);
+   const blogIndex = blogList.findIndex((blog) => blog.id == req.body.id);
+   blogList[blogIndex].content = req.body.content;
+   blogList[blogIndex].title = req.body.title;
 
-    blogList[index].blogName = req.body["blogName"];
-    blogList[index].blogBody = req.body["blogBody"];
 
-    res.render("edit.ejs", {message : "edited succesfully"});
+   console.log(blogIndex);
+   res.redirect("/");
+
 });
 
 
