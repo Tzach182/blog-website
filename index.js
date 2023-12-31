@@ -47,7 +47,7 @@ app.get("/addPost", (req,res) => {
 
 /*
     deals with logic of adding posts
-    and then rerouts to main page with the updated list
+    and then rerouts to main page
 */
 app.post("/submit", async (req, res) => {
     //console.log("this is the body " + req.body["blogName"]);
@@ -85,38 +85,49 @@ app.get("/blog/:id", async (req, res) => {
 /*
     displays delete blog page
 */
-app.get("/delete/:id", (req, res) => {
-    console.log(req.params.id);
+app.get("/delete/:id", async (req, res) => {
+    //console.log(req.params.id);
     const id = req.params.id;
-    const indexToDelete = blogList.findIndex((blog) => blog.id == id);
-    blogList.splice(indexToDelete, 1);
-    res.redirect("/");
+    try {
+        await db.query("DELETE FROM post WHERE id = $1", [id]);
+        res.redirect("/");
+    } catch(err) {
+        console.log(err);
+    }
 });
 
 
 /*
     displays edit blog page
 */
-app.post("/edit", (req, res) => {
+app.post("/edit", async (req, res) => {
     const id = req.body.id;
-    const blogToEdit = blogList.find((blog) => blog.id == id);
-    console.log(blogToEdit);
-    res.render("edit.ejs", blogToEdit);
+    try {
+        const result = await db.query("SELECT * FROM post WHERE id = $1",[id]);
+        let blogToEdit = result.rows;
+        console.log(blogToEdit);
+        res.render("edit.ejs", blogToEdit[0]);
+    } catch (err) {
+        console.log(err);
+    };    
 });
 
 /*
     deals with the edit blog logic, returns status message
 */
-app.post("/edit/submit", (req, res) => {
+app.post("/edit/submit", async (req, res) => {
    const id = req.body.id;
    console.log(id);
-   const blogIndex = blogList.findIndex((blog) => blog.id == req.body.id);
-   blogList[blogIndex].content = req.body.content;
-   blogList[blogIndex].title = req.body.title;
+   const content = req.body.content;
+   const title = req.body.title;
 
-
-   console.log(blogIndex);
-   res.redirect("/");
+   try {
+       await db.query("UPDATE post SET title = $1, content = $2 WHERE id = $3",[title, content, id]);
+       //console.log(result);
+       res.redirect("/");
+   } catch (err) {
+       console.log(err);
+   };
 
 });
 

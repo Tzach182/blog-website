@@ -10,13 +10,14 @@
 
  
 
-
+<div class = "container">
 <div class="list-group">
     <% blogList.forEach(blog => { %>
         <a href="/blog/<%= blog.id %>" class="list-group-item list-group-item-action addMark"><%= blog.title %></a>
      
     <% }) %>
   </div>
+</div>
 
 </div>
 
