@@ -11,31 +11,108 @@ const saltRounds = 10;
 const app = express();
 const port = 3000;
 
+
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static("public"));
+app.use(session({
+    secret:process.env.SECRET,
+    resave: false,
+    saveUninitialized: false
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
 const db = new pg.Client({
     user: "postgres",
     host: "localhost",
     database: process.env.DB_NAME,
     password: process.env.DB_PASSWORD,
-    port: 5432,
+    port: process.eventNames.DB_PORT,
 });
 
 db.connect();
 
+
+passport.use(new LocalStrategy(
+    async (username, password, done) => {
+    try {
+        const result = await db.query('SELECT * FROM users WHERE username = $1', [username]);
+        const user = result.rows[0];
+
+        if(!user) {
+            return done(null, false, {message: 'Incorrect username'});
+        }
+        
+        const passwordMatch = await bcrypt.compare(password, user.password);
+
+        if(!passwordMatch) {
+            return done(null, false, {message: 'Incorrect password'});
+        }
+
+        return done(null, user);
+
+
+    } catch (err) {return done(err);}
+
+}));
+
+passport.serializeUser((user, done) => {
+    done(null, user.id);
+});
+
+passport.deserializeUser(async (id, done) => {
+    try {
+        const result = await db.query('SELECT * FROM users WHERE id = $1', [id]);
+        const user = result.rows[0];
+        done(null, user);
+    } catch (err) {
+        done(err, null);
+    }
+});
+
 let blogList = [{id: 1, title: "start", content: "this is a demo to get a feel for it" }];
 
-app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use(express.static("public"));
 
 async function getBlogs() {
     const result = await db.query("SELECT * FROM post ORDER BY id ASC");
     blogList = result.rows;
 }
 
+app.get("/", (req, res) => {
+    res.render("landingPage.ejs");
+});
+
+app.get("/register", (req, res) => {
+    res.render("register.ejs");
+});
+
+app.post("/register", async (req, res) => {
+
+    const userName = req.body.username;
+    const password = req.body.password;
+
+    bcrypt.hash(password, saltRounds, async function(err, hash) {
+        console.log(hash);
+
+        try {
+            await db.query("INSERT INTO users (username, password) VALUES ($1, $2)", [userName, hash]);
+            res.redirect("/login");
+
+        } catch (err) {
+            console.log(err);
+            res.render("/errorpage", {message: "Couldn't add user"});
+        }
+    });
+    
+    
+});
+
 /*
     displays main webpage with the list of blogs
 */
-app.get("/", async (req, res) => {
+app.get("/bloglist", async (req, res) => {
     //console.log(blogList);
     await getBlogs();
     res.render("index.ejs", {
@@ -137,13 +214,6 @@ app.post("/edit/submit", async (req, res) => {
 
 });
 
-app.get("/landing", (req, res) => {
-    res.render("landingPage.ejs");
-});
-
-app.get("/register", (req, res) => {
-    res.render("register.ejs");
-});
 
 
 app.listen(port, () => {
