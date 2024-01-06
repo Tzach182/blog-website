@@ -75,11 +75,14 @@ let blogList = [{id: 1, title: "start", content: "this is a demo to get a feel f
 
 
 
-async function getBlogs() {
-    const result = await db.query("SELECT * FROM post ORDER BY id ASC");
-    blogList = result.rows;
-}
+async function getBlogs(id) {
+    const result = await db.query("SELECT * FROM blogs WHERE userid = $1 ORDER BY id ASC", [id]);
+    return result.rows;
+};
 
+/*routes 
+-----------------------------------------------------------------
+*/
 app.get("/", (req, res) => {
     res.render("landingPage.ejs");
 });
@@ -109,16 +112,28 @@ app.post("/register", async (req, res) => {
     
 });
 
+app.get("/login", (req, res) => {
+    res.render("login.ejs");
+});
+
+app.post("/login", passport.authenticate('local', {
+    successRedirect: "/bloglist",
+    failureRedirect:"/login"
+}));
+
 /*
     displays main webpage with the list of blogs
 */
 app.get("/bloglist", async (req, res) => {
     //console.log(blogList);
-    await getBlogs();
-    res.render("index.ejs", {
-        blogList : blogList,
+    if (req.isAuthenticated()) {
+        const id = req.id;
+        const blogList = await getBlogs(id)
+        res.render("index.ejs", {blogList: blogList});
+      } else {
+        res.redirect('/login');
+      }
     });
-  });
 
 /*
     displays addPost page for adding posts
