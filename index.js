@@ -2,6 +2,11 @@ import 'dotenv/config';
 import express from "express";
 import bodyParser from "body-parser";
 import pg from "pg";
+import session from "express-session";
+import passport from 'passport';
+import LocalStrategy from 'passport-local';
+import bcrypt from 'bcrypt';
+const saltRounds = 10;
 
 const app = express();
 const port = 3000;
@@ -130,6 +135,14 @@ app.post("/edit/submit", async (req, res) => {
        console.log(err);
    };
 
+});
+
+app.get("/landing", (req, res) => {
+    res.render("landingPage.ejs");
+});
+
+app.get("/register", (req, res) => {
+    res.render("register.ejs");
 });
 
 
