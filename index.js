@@ -129,6 +129,15 @@ app.post("/login", passport.authenticate('local', {
     failureRedirect:"/login"
 }));
 
+app.get('/logout', (req, res) => {
+    req.logOut((err) => {
+        if (err) {
+            return res.send("Error during logout");
+        }
+    });
+    res.redirect("/");
+});
+
 /*
 main pages
 --------------------------------------------------------
