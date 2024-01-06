@@ -76,12 +76,20 @@ let blogList = [{id: 1, title: "start", content: "this is a demo to get a feel f
 
 
 async function getBlogs(id) {
+    console.log(id);
     const result = await db.query("SELECT * FROM blogs WHERE userid = $1 ORDER BY id ASC", [id]);
+    console.log(result);
     return result.rows;
 };
 
-/*routes 
+/*
+routes 
 -----------------------------------------------------------------
+*/
+
+/*
+login / register
+------------------------------------------------------------------
 */
 app.get("/", (req, res) => {
     res.render("landingPage.ejs");
@@ -122,39 +130,44 @@ app.post("/login", passport.authenticate('local', {
 }));
 
 /*
-    displays main webpage with the list of blogs
+main pages
+--------------------------------------------------------
 */
+
 app.get("/bloglist", async (req, res) => {
-    //console.log(blogList);
+    
     if (req.isAuthenticated()) {
-        const id = req.id;
+        const user = req.user;
+        const id = user.id;
         const blogList = await getBlogs(id)
+        console.log(blogList);
         res.render("index.ejs", {blogList: blogList});
       } else {
         res.redirect('/login');
       }
     });
 
-/*
-    displays addPost page for adding posts
-*/
-app.get("/addPost", (req,res) => {
 
-    res.render("addBlog.ejs");
+app.get("/addPost", (req,res) => {
+    if (req.isAuthenticated()) {
+        res.render("addBlog.ejs");
+    } else {
+        res.redirect("/login");
+    }
+    
 });
 
-/*
-    deals with logic of adding posts
-    and then rerouts to main page
-*/
+
 app.post("/submit", async (req, res) => {
-    //console.log("this is the body " + req.body["blogName"]);
     const title = req.body.title;
     const content = req.body.content;
+    const user = req.user;
+    const userId = user.id;
+    const creationDate = new Date();
     try {
-        const result = await db.query("INSERT INTO post (title, content) VALUES ($1, $2) RETURNING *",[title, content]);
-        //console.log(result);
-        res.redirect("/");
+        const result = await db.query("INSERT INTO blogs (title, content, userid, creationdate) VALUES ($1, $2, $3, $4) RETURNING *",[title, content, userId, creationDate]);
+        console.log(result);
+        res.redirect("/bloglist");
     } catch (err) {
         console.log(err);
     };
