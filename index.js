@@ -170,6 +170,7 @@ app.post("/submit", async (req, res) => {
         res.redirect("/bloglist");
     } catch (err) {
         console.log(err);
+        res.render("/errorpage", {message: "Couldn't add blog"});
     };
 });
 
@@ -182,12 +183,13 @@ app.get("/blog/:id", async (req, res) => {
     console.log(req.params.id);
     const id = parseInt(req.params.id);
     try {
-        const result = await db.query("SELECT * FROM post WHERE id = $1",[id]);
+        const result = await db.query("SELECT * FROM blogs WHERE id = $1",[id]);
         let blog = result.rows;
         console.log(blog);
         res.render("blog.ejs", blog[0]);
     } catch (err) {
         console.log(err);
+        res.render("/errorpage", {message: "Error finding blog"});
     }
 
 });
