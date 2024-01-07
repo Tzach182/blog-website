@@ -1,6 +1,6 @@
 <%- include("partials/header.ejs") %>
 <div class="d-flex justify-content-center align-items-center">
-<div class="container my-5 mx-5">
+<div class="container my-5 mx-5 width-75">
 <div class="row">
 <% if (locals.title) { %>
     <h2 class="text-center">
@@ -12,6 +12,14 @@
 <% if (locals.content) { %>
  <p class="text-center"><%= content %></p>
 <% } %>
+</div>
+<div class="row">
+<% if (locals.creationdate) { %>
+ <p class="text-center text-body-secondary">Creation date: <%= creationdate.toDateString() %></p>
+<% } %>
+<% if (locals.updatedate) { %>
+    <p class="text-center text-body-secondary">Last update: <%= updatedate.toDateString() %></p>
+   <% } %>
 </div>
 <div class="d-flex justify-content-center align-items-center my-5">
 <form action="/delete/<%= locals.id %>" method="GET">
