@@ -5,7 +5,7 @@ Blog Website Project
 Overview
 --------
 
-This project is a simple blog website that allows users to create, edit, and delete posts. It was built using Express.js as the backend framework, PostgreSQL as the database, and EJS (Embedded JavaScript) for the templating engine. The goal of this project is to provide a basic platform for users to share their thoughts and ideas through blog posts.
+This project is a simple blog website that allows the creation of users, For each user to create, edit, and delete posts. It was built using Express.js as the backend framework, PostgreSQL as the database, and EJS (Embedded JavaScript) for the templating engine. The goal of this project is to provide a basic platform for users to share their thoughts and ideas through blog posts.
 
 Getting Started
 ---------------
@@ -18,8 +18,8 @@ Getting Started
 
     cd blog-website
 
-5.  Create a table in your PostgreSQL database. Adjust the database connection settings in `index.js` if needed.
-6.  Optionally, you can use the provided CSV file (`post.csv`) to populate the database with some test posts.
+5.  Create a table in your PostgreSQL database. Adjust the database connection settings in `index.js` if needed. 
+6.  Optionally, You can find an SQL file with the commands to create the correct tables.
 7.  Update the database connection information, including username, password, and database name in the `index.js` file.
 8.  Install the project dependencies using npm:
 
